@@ -6,6 +6,7 @@ export interface Vote {
   thirdChoice: string;
   createdAt: string;
   updatedAt: string;
+  excluded?: boolean;
 }
 
 export interface WeightConfig {

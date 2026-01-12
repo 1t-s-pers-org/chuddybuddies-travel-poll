@@ -18,6 +18,7 @@ interface AdminDashboardProps {
   onWeightChange: (config: WeightConfigType) => void;
   onHideResultsChange: (hide: boolean) => void;
   onDeleteVote: (id: string) => void;
+  onToggleExcludeVote: (id: string) => void;
   onExport: () => void;
   onImport: (file: File) => void;
   onLogout: () => void;
@@ -31,6 +32,7 @@ export function AdminDashboard({
   onWeightChange,
   onHideResultsChange,
   onDeleteVote,
+  onToggleExcludeVote,
   onExport,
   onImport,
   onLogout,
@@ -116,7 +118,11 @@ export function AdminDashboard({
         </TabsContent>
 
         <TabsContent value="votes" className="mt-4">
-          <AllVotes votes={votes} onDelete={onDeleteVote} />
+          <AllVotes 
+            votes={votes} 
+            onDelete={onDeleteVote} 
+            onToggleExclude={onToggleExcludeVote} 
+          />
         </TabsContent>
       </Tabs>
     </div>

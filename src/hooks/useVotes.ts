@@ -56,6 +56,10 @@ export function useVotes() {
     saveVotes(votes.filter(v => v.id !== id));
   }, [votes, saveVotes]);
 
+  const toggleExcludeVote = useCallback((id: string) => {
+    saveVotes(votes.map(v => v.id === id ? { ...v, excluded: !v.excluded, updatedAt: new Date().toISOString() } : v));
+  }, [votes, saveVotes]);
+
   const setWeightConfig = useCallback((config: WeightConfig) => {
     setWeightConfigState(config);
     localStorage.setItem(WEIGHT_CONFIG_KEY, JSON.stringify(config));
@@ -74,7 +78,7 @@ export function useVotes() {
   const calculateResults = useCallback((): DestinationResult[] => {
     const destinations = new Map<string, DestinationResult>();
 
-    votes.forEach(vote => {
+    votes.filter(v => !v.excluded).forEach(vote => {
       [vote.firstChoice, vote.secondChoice, vote.thirdChoice].forEach((dest, index) => {
         if (!dest.trim()) return;
         const key = dest.toLowerCase().trim();
@@ -148,6 +152,7 @@ export function useVotes() {
     votes,
     addVote,
     deleteVote,
+    toggleExcludeVote,
     weightConfig,
     setWeightConfig,
     hideResults,
