@@ -14,6 +14,7 @@ const Index = () => {
     votes,
     addVote,
     deleteVote,
+    toggleExcludeVote,
     weightConfig,
     setWeightConfig,
     hideResults,
@@ -61,6 +62,7 @@ const Index = () => {
               onWeightChange={setWeightConfig}
               onHideResultsChange={setHideResults}
               onDeleteVote={deleteVote}
+              onToggleExcludeVote={toggleExcludeVote}
               onExport={exportData}
               onImport={importData}
               onLogout={handleLogout}
