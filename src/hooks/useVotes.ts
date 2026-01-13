@@ -125,6 +125,21 @@ export function useVotes() {
     saveVotes([]);
   }, [votes, rounds, calculateResults, weightConfig, saveVotes]);
 
+  const setWeightConfig = useCallback((config: WeightConfig) => {
+    setWeightConfigState(config);
+    localStorage.setItem(WEIGHT_CONFIG_KEY, JSON.stringify(config));
+  }, []);
+
+  const setHideResults = useCallback((hide: boolean) => {
+    setHideResultsState(hide);
+    localStorage.setItem(HIDE_RESULTS_KEY, JSON.stringify(hide));
+  }, []);
+
+  const verifyAdminPassword = useCallback((password: string): boolean => {
+    const stored = localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_ADMIN_PASSWORD;
+    return password === stored;
+  }, []);
+
   const exportData = useCallback(() => {
     const data = {
       votes,
