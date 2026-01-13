@@ -3,15 +3,19 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Upload, LogOut, BarChart3, Users } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { Download, Upload, LogOut, BarChart3, Users, RotateCcw, History } from 'lucide-react';
 import { WeightConfig } from './WeightConfig';
 import { ResultsCharts } from './ResultsCharts';
 import { Leaderboard } from './Leaderboard';
 import { AllVotes } from './AllVotes';
-import { Vote, WeightConfig as WeightConfigType, DestinationResult } from '@/types/poll';
+import { Vote, WeightConfig as WeightConfigType, DestinationResult, PollRound } from '@/types/poll';
+import { format } from 'date-fns';
 
 interface AdminDashboardProps {
   votes: Vote[];
+  rounds: PollRound[];
   weightConfig: WeightConfigType;
   hideResults: boolean;
   results: DestinationResult[];
@@ -19,6 +23,7 @@ interface AdminDashboardProps {
   onHideResultsChange: (hide: boolean) => void;
   onDeleteVote: (id: string) => void;
   onToggleExcludeVote: (id: string) => void;
+  onArchiveAndReset: () => void;
   onExport: () => void;
   onImport: (file: File) => void;
   onLogout: () => void;
@@ -26,6 +31,7 @@ interface AdminDashboardProps {
 
 export function AdminDashboard({
   votes,
+  rounds,
   weightConfig,
   hideResults,
   results,
@@ -33,6 +39,7 @@ export function AdminDashboard({
   onHideResultsChange,
   onDeleteVote,
   onToggleExcludeVote,
+  onArchiveAndReset,
   onExport,
   onImport,
   onLogout,
@@ -73,6 +80,18 @@ export function AdminDashboard({
             <Upload className="h-4 w-4 mr-1" />
             Import
           </Button>
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            onClick={() => {
+              if (window.confirm('This will archive the current results and start a new round. Continue?')) {
+                onArchiveAndReset();
+              }
+            }}
+          >
+            <RotateCcw className="h-4 w-4 mr-1" />
+            New Round
+          </Button>
           <input
             ref={fileInputRef}
             type="file"
@@ -96,14 +115,18 @@ export function AdminDashboard({
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="results" className="flex items-center gap-1">
             <BarChart3 className="h-4 w-4" />
             Results
           </TabsTrigger>
           <TabsTrigger value="votes" className="flex items-center gap-1">
             <Users className="h-4 w-4" />
-            All Votes
+            Votes
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-1">
+            <History className="h-4 w-4" />
+            History
           </TabsTrigger>
         </TabsList>
 
@@ -113,6 +136,9 @@ export function AdminDashboard({
             onChange={onWeightChange}
             totalParticipants={votes.length}
           />
+          <div className="text-center py-2 bg-muted/30 rounded-md border border-dashed border-border mb-2">
+            <span className="text-sm font-medium text-muted-foreground">Current Round: #{rounds.length + 1}</span>
+          </div>
           <ResultsCharts results={results} />
           <Leaderboard results={results} />
         </TabsContent>
@@ -123,6 +149,62 @@ export function AdminDashboard({
             onDelete={onDeleteVote} 
             onToggleExclude={onToggleExcludeVote} 
           />
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-4 space-y-4">
+          {rounds.length === 0 ? (
+            <Card className="shadow-lg border-0">
+              <CardContent className="py-12 text-center text-muted-foreground">
+                <History className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>No archived rounds yet.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            [...rounds].reverse().map((round) => (
+              <Card key={round.id} className="shadow-lg border-0 overflow-hidden">
+                <div className="bg-muted/50 px-4 py-2 border-b border-border flex justify-between items-center">
+                  <span className="font-semibold">Round #{round.roundNumber}</span>
+                  <span className="text-xs text-muted-foreground">{format(new Date(round.timestamp), 'MMM d, yyyy h:mm a')}</span>
+                </div>
+                <CardContent className="pt-4 space-y-4">
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="p-2 bg-background rounded-md border border-border">
+                      <div className="text-xs text-muted-foreground">Votes</div>
+                      <div className="font-bold">{round.votes.length}</div>
+                    </div>
+                    <div className="p-2 bg-background rounded-md border border-border">
+                      <div className="text-xs text-muted-foreground">Top Choice</div>
+                      <div className="font-bold truncate">{round.results[0]?.name || 'N/A'}</div>
+                    </div>
+                    <div className="p-2 bg-background rounded-md border border-border">
+                      <div className="text-xs text-muted-foreground">Points</div>
+                      <div className="font-bold">{round.results[0]?.totalPoints || 0}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Leaderboard</p>
+                    {round.results.slice(0, 3).map((res, i) => (
+                      <div key={res.name} className="flex justify-between items-center text-sm p-2 bg-background rounded border border-border">
+                        <span className="flex items-center gap-2">
+                          <span className={cn(
+                            "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold",
+                            i === 0 ? "bg-gold text-gold-foreground" : 
+                            i === 1 ? "bg-silver text-silver-foreground" : 
+                            "bg-bronze text-bronze-foreground"
+                          )}>
+                            {i + 1}
+                          </span>
+                          {res.name}
+                        </span>
+                        <span className="font-mono font-medium">{res.totalPoints} pts</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </TabsContent>
       </Tabs>
     </div>

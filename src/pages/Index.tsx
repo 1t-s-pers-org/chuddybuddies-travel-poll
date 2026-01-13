@@ -15,6 +15,8 @@ const Index = () => {
     addVote,
     deleteVote,
     toggleExcludeVote,
+    archiveAndResetPoll,
+    rounds,
     weightConfig,
     setWeightConfig,
     hideResults,
@@ -56,6 +58,7 @@ const Index = () => {
           {activeTab === 'admin' && isLoggedIn && (
             <AdminDashboard
               votes={votes}
+              rounds={rounds}
               weightConfig={weightConfig}
               hideResults={hideResults}
               results={results}
@@ -63,6 +66,7 @@ const Index = () => {
               onHideResultsChange={setHideResults}
               onDeleteVote={deleteVote}
               onToggleExcludeVote={toggleExcludeVote}
+              onArchiveAndReset={archiveAndResetPoll}
               onExport={exportData}
               onImport={importData}
               onLogout={handleLogout}

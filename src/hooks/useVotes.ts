@@ -1,15 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Vote, WeightConfig, DestinationResult, DEFAULT_WEIGHT_CONFIGS } from '@/types/poll';
+import { Vote, WeightConfig, DestinationResult, DEFAULT_WEIGHT_CONFIGS, PollRound } from '@/types/poll';
 
 const VOTES_KEY = 'travel-poll-votes';
 const ADMIN_PASSWORD_KEY = 'travel-poll-admin-password';
 const WEIGHT_CONFIG_KEY = 'travel-poll-weight-config';
 const HIDE_RESULTS_KEY = 'travel-poll-hide-results';
+const POLL_ROUNDS_KEY = 'travel-poll-rounds';
 
 const DEFAULT_ADMIN_PASSWORD = 'admin123';
 
 export function useVotes() {
   const [votes, setVotes] = useState<Vote[]>([]);
+  const [rounds, setRounds] = useState<PollRound[]>([]);
   const [weightConfig, setWeightConfigState] = useState<WeightConfig>(DEFAULT_WEIGHT_CONFIGS[0]);
   const [hideResults, setHideResultsState] = useState(false);
 
@@ -17,6 +19,11 @@ export function useVotes() {
     const storedVotes = localStorage.getItem(VOTES_KEY);
     if (storedVotes) {
       setVotes(JSON.parse(storedVotes));
+    }
+
+    const storedRounds = localStorage.getItem(POLL_ROUNDS_KEY);
+    if (storedRounds) {
+      setRounds(JSON.parse(storedRounds));
     }
 
     const storedWeight = localStorage.getItem(WEIGHT_CONFIG_KEY);
@@ -60,21 +67,6 @@ export function useVotes() {
     saveVotes(votes.map(v => v.id === id ? { ...v, excluded: !v.excluded, updatedAt: new Date().toISOString() } : v));
   }, [votes, saveVotes]);
 
-  const setWeightConfig = useCallback((config: WeightConfig) => {
-    setWeightConfigState(config);
-    localStorage.setItem(WEIGHT_CONFIG_KEY, JSON.stringify(config));
-  }, []);
-
-  const setHideResults = useCallback((hide: boolean) => {
-    setHideResultsState(hide);
-    localStorage.setItem(HIDE_RESULTS_KEY, JSON.stringify(hide));
-  }, []);
-
-  const verifyAdminPassword = useCallback((password: string): boolean => {
-    const stored = localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_ADMIN_PASSWORD;
-    return password === stored;
-  }, []);
-
   const calculateResults = useCallback((): DestinationResult[] => {
     const destinations = new Map<string, DestinationResult>();
 
@@ -115,6 +107,24 @@ export function useVotes() {
     return Array.from(destinations.values()).sort((a, b) => b.totalPoints - a.totalPoints);
   }, [votes, weightConfig]);
 
+  const archiveAndResetPoll = useCallback(() => {
+    const results = calculateResults();
+    const newRound: PollRound = {
+      id: crypto.randomUUID(),
+      roundNumber: rounds.length + 1,
+      timestamp: new Date().toISOString(),
+      votes: [...votes],
+      results,
+      weightConfig: { ...weightConfig },
+    };
+
+    const updatedRounds = [...rounds, newRound];
+    setRounds(updatedRounds);
+    localStorage.setItem(POLL_ROUNDS_KEY, JSON.stringify(updatedRounds));
+    
+    saveVotes([]);
+  }, [votes, rounds, calculateResults, weightConfig, saveVotes]);
+
   const exportData = useCallback(() => {
     const data = {
       votes,
@@ -153,6 +163,8 @@ export function useVotes() {
     addVote,
     deleteVote,
     toggleExcludeVote,
+    archiveAndResetPoll,
+    rounds,
     weightConfig,
     setWeightConfig,
     hideResults,

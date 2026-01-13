@@ -31,3 +31,12 @@ export interface DestinationResult {
   thirdVotes: number;
   voters: string[];
 }
+
+export interface PollRound {
+  id: string;
+  roundNumber: number;
+  timestamp: string;
+  votes: Vote[];
+  results: DestinationResult[];
+  weightConfig: WeightConfig;
+}
