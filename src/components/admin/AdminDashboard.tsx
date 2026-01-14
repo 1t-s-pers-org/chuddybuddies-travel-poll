@@ -5,13 +5,15 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Download, Upload, LogOut, BarChart3, Users, RotateCcw, History } from 'lucide-react';
+import { Download, Upload, LogOut, BarChart3, Users, RotateCcw, History, Lock } from 'lucide-react';
 import { WeightConfig } from './WeightConfig';
 import { ResultsCharts } from './ResultsCharts';
 import { Leaderboard } from './Leaderboard';
 import { AllVotes } from './AllVotes';
 import { Vote, WeightConfig as WeightConfigType, DestinationResult, PollRound } from '@/types/poll';
 import { format } from 'date-fns';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 interface AdminDashboardProps {
   votes: Vote[];
@@ -24,6 +26,7 @@ interface AdminDashboardProps {
   onDeleteVote: (id: string) => void;
   onToggleExcludeVote: (id: string) => void;
   onArchiveAndReset: () => void;
+  onChangePassword: (password: string) => void;
   onExport: () => void;
   onImport: (file: File) => void;
   onLogout: () => void;
@@ -40,15 +43,36 @@ export function AdminDashboard({
   onDeleteVote,
   onToggleExcludeVote,
   onArchiveAndReset,
+  onChangePassword,
   onExport,
   onImport,
   onLogout,
 }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState('results');
+  const [newPassword, setNewPassword] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handlePasswordChange = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 4) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 4 characters long",
+        variant: "destructive"
+      });
+      return;
+    }
+    onChangePassword(newPassword);
+    setNewPassword('');
+    toast({
+      title: "Success",
+      description: "Admin password has been updated",
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,6 +135,25 @@ export function AdminDashboard({
             onCheckedChange={onHideResultsChange}
           />
         </div>
+
+        <form onSubmit={handlePasswordChange} className="pt-4 border-t border-border space-y-3">
+          <Label className="text-sm flex items-center gap-2">
+            <Lock className="h-4 w-4" />
+            Change Admin Password
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              type="password"
+              placeholder="New password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="h-9"
+            />
+            <Button type="submit" size="sm" variant="secondary">
+              Update
+            </Button>
+          </div>
+        </form>
       </div>
 
       {/* Tabs */}

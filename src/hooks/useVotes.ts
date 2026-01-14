@@ -136,8 +136,12 @@ export function useVotes() {
   }, []);
 
   const verifyAdminPassword = useCallback((password: string): boolean => {
-    const stored = localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_ADMIN_PASSWORD;
+    const stored = localStorage.getItem(ADMIN_PASSWORD_KEY) || import.meta.env.VITE_ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
     return password === stored;
+  }, []);
+
+  const changeAdminPassword = useCallback((newPassword: string) => {
+    localStorage.setItem(ADMIN_PASSWORD_KEY, newPassword);
   }, []);
 
   const exportData = useCallback(() => {
@@ -185,6 +189,7 @@ export function useVotes() {
     hideResults,
     setHideResults,
     verifyAdminPassword,
+    changeAdminPassword,
     calculateResults,
     exportData,
     importData,

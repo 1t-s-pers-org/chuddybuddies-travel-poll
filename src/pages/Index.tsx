@@ -22,6 +22,7 @@ const Index = () => {
     hideResults,
     setHideResults,
     verifyAdminPassword,
+    changeAdminPassword,
     calculateResults,
     exportData,
     importData,
@@ -67,6 +68,7 @@ const Index = () => {
               onDeleteVote={deleteVote}
               onToggleExcludeVote={toggleExcludeVote}
               onArchiveAndReset={archiveAndResetPoll}
+              onChangePassword={changeAdminPassword}
               onExport={exportData}
               onImport={importData}
               onLogout={handleLogout}
