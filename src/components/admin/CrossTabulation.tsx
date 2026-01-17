@@ -17,6 +17,31 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
 
   const activeVotes = useMemo(() => votes.filter(v => !v.excluded), [votes]);
 
+  const regions = useMemo(() => {
+    const uniqueRegions = new Set<string>();
+    results.forEach(r => {
+      const region = LOCATION_TO_COUNTRY[r.name.toLowerCase()] || r.name;
+      uniqueRegions.add(region.charAt(0).toUpperCase() + region.slice(1));
+    });
+    return Array.from(uniqueRegions).sort();
+  }, [results]);
+
+  const toggleAllRows = (collapse: boolean) => {
+    if (collapse) {
+      setCollapsedRows(new Set(regions));
+    } else {
+      setCollapsedRows(new Set());
+    }
+  };
+
+  const toggleAllCols = (collapse: boolean) => {
+    if (collapse) {
+      setCollapsedCols(new Set(activeVotes.map(v => v.id)));
+    } else {
+      setCollapsedCols(new Set());
+    }
+  };
+
   const toggleRow = (region: string) => {
     const newSet = new Set(collapsedRows);
     if (newSet.has(region)) newSet.delete(region);
@@ -30,15 +55,6 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
     else newSet.add(voterId);
     setCollapsedCols(newSet);
   };
-
-  const regions = useMemo(() => {
-    const uniqueRegions = new Set<string>();
-    results.forEach(r => {
-      const region = LOCATION_TO_COUNTRY[r.name.toLowerCase()] || r.name;
-      uniqueRegions.add(region.charAt(0).toUpperCase() + region.slice(1));
-    });
-    return Array.from(uniqueRegions).sort();
-  }, [results]);
 
   const matrix = useMemo(() => {
     const data: Record<string, Record<string, number>> = {};
@@ -83,11 +99,51 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
 
   return (
     <Card className="shadow-lg border-0 overflow-hidden">
-      <CardHeader className="pb-3 flex flex-row items-center justify-between">
+      <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <CardTitle className="text-lg flex items-center gap-2">
           <TableIcon className="h-5 w-5" />
           Cross Tabulation Matrix
         </CardTitle>
+        <div className="flex flex-wrap gap-2">
+          <div className="flex items-center gap-1 bg-muted rounded-md p-1">
+            <span className="text-[10px] font-medium px-2 uppercase tracking-wider text-muted-foreground">Rows</span>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-7 px-2 text-[10px]"
+              onClick={() => toggleAllRows(true)}
+            >
+              - Collapse
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-7 px-2 text-[10px]"
+              onClick={() => toggleAllRows(false)}
+            >
+              + Expand
+            </Button>
+          </div>
+          <div className="flex items-center gap-1 bg-muted rounded-md p-1">
+            <span className="text-[10px] font-medium px-2 uppercase tracking-wider text-muted-foreground">Cols</span>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-7 px-2 text-[10px]"
+              onClick={() => toggleAllCols(true)}
+            >
+              - Collapse
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-7 px-2 text-[10px]"
+              onClick={() => toggleAllCols(false)}
+            >
+              + Expand
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="p-0 overflow-x-auto">
         <Table>
