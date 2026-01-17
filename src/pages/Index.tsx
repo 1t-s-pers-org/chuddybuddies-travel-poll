@@ -44,35 +44,41 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-16">
-      <div className="max-w-md mx-auto">
+      <div className="w-full max-w-7xl mx-auto">
         <PollHeader totalVotes={votes.length} />
 
         <div className="p-4">
           {activeTab === 'poll' && (
-            <PollForm onSubmit={addVote} />
+            <div className="max-w-md mx-auto">
+              <PollForm onSubmit={addVote} />
+            </div>
           )}
 
           {activeTab === 'admin' && !isLoggedIn && (
-            <AdminLogin onLogin={handleLogin} />
+            <div className="max-w-md mx-auto">
+              <AdminLogin onLogin={handleLogin} />
+            </div>
           )}
 
           {activeTab === 'admin' && isLoggedIn && (
-            <AdminDashboard
-              votes={votes}
-              rounds={rounds}
-              weightConfig={weightConfig}
-              hideResults={hideResults}
-              results={results}
-              onWeightChange={setWeightConfig}
-              onHideResultsChange={setHideResults}
-              onDeleteVote={deleteVote}
-              onToggleExcludeVote={toggleExcludeVote}
-              onArchiveAndReset={archiveAndResetPoll}
-              onChangePassword={changeAdminPassword}
-              onExport={exportData}
-              onImport={importData}
-              onLogout={handleLogout}
-            />
+            <div className="w-full">
+              <AdminDashboard
+                votes={votes}
+                rounds={rounds}
+                weightConfig={weightConfig}
+                hideResults={hideResults}
+                results={results}
+                onWeightChange={setWeightConfig}
+                onHideResultsChange={setHideResults}
+                onDeleteVote={deleteVote}
+                onToggleExcludeVote={toggleExcludeVote}
+                onArchiveAndReset={archiveAndResetPoll}
+                onChangePassword={changeAdminPassword}
+                onExport={exportData}
+                onImport={importData}
+                onLogout={handleLogout}
+              />
+            </div>
           )}
         </div>
       </div>
