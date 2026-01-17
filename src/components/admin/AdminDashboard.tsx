@@ -5,11 +5,12 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Download, Upload, LogOut, BarChart3, Users, RotateCcw, History, Lock } from 'lucide-react';
+import { Download, Upload, LogOut, BarChart3, Users, RotateCcw, History, Lock, Map as MapIcon } from 'lucide-react';
 import { WeightConfig } from './WeightConfig';
 import { ResultsCharts } from './ResultsCharts';
 import { Leaderboard } from './Leaderboard';
 import { AllVotes } from './AllVotes';
+import { MapResults } from './MapResults';
 import { Vote, WeightConfig as WeightConfigType, DestinationResult, PollRound } from '@/types/poll';
 import { format } from 'date-fns';
 import { Input } from '@/components/ui/input';
@@ -158,10 +159,14 @@ export function AdminDashboard({
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="results" className="flex items-center gap-1">
             <BarChart3 className="h-4 w-4" />
             Results
+          </TabsTrigger>
+          <TabsTrigger value="map" className="flex items-center gap-1">
+            <MapIcon className="h-4 w-4" />
+            Map
           </TabsTrigger>
           <TabsTrigger value="votes" className="flex items-center gap-1">
             <Users className="h-4 w-4" />
@@ -184,6 +189,10 @@ export function AdminDashboard({
           </div>
           <ResultsCharts results={results} />
           <Leaderboard results={results} />
+        </TabsContent>
+
+        <TabsContent value="map" className="mt-4">
+          <MapResults results={results} />
         </TabsContent>
 
         <TabsContent value="votes" className="mt-4">
