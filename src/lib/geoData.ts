@@ -256,6 +256,7 @@ export const LOCATION_TO_COUNTRY: Record<string, string> = {
   "singapore": "singapore",
   "istanbul": "turkey",
   "dublin": "ireland",
+  "tuscany": "italy",
 };
 
 export const CONTINENT_DATA: Record<string, { lat: number, lng: number }> = {

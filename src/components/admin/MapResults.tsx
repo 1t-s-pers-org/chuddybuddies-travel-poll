@@ -148,10 +148,12 @@ export function MapResults({ results }: MapResultsProps) {
             <MapEvents />
             {currentMarkers.map((m, i) => {
               const color = (m as any).color || '#3b82f6';
-              const iconSize = 32;
+              // Proportional bubble size: min 24px, max 48px
+              const maxPointsOverall = Math.max(...currentMarkers.map(marker => marker.totalPoints), 1);
+              const iconSize = 24 + (m.totalPoints / maxPointsOverall) * 24;
               const icon = L.divIcon({
                 className: 'custom-div-icon',
-                html: `<div style="background-color: ${color}; width: ${iconSize}px; height: ${iconSize}px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">${m.totalPoints}</div>`,
+                html: `<div style="background-color: ${color}; width: ${iconSize}px; height: ${iconSize}px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: ${Math.max(10, iconSize/3)}px; font-weight: bold;">${m.totalPoints}</div>`,
                 iconSize: [iconSize, iconSize],
                 iconAnchor: [iconSize/2, iconSize/2],
               });

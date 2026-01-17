@@ -26,6 +26,14 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
     return Array.from(uniqueRegions).sort();
   }, [results]);
 
+  const visibleRegions = useMemo(() => {
+    return regions.filter(r => !collapsedRows.has(r));
+  }, [regions, collapsedRows]);
+
+  const visibleVotes = useMemo(() => {
+    return activeVotes.filter(v => !collapsedCols.has(v.id));
+  }, [activeVotes, collapsedCols]);
+
   const toggleAllRows = (collapse: boolean) => {
     if (collapse) {
       setCollapsedRows(new Set(regions));
@@ -152,7 +160,7 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
               <TableHead className="min-w-[150px] sticky left-0 bg-background z-20 border-r">
                 Region / Voter
               </TableHead>
-              {activeVotes.map(v => (
+              {visibleVotes.map(v => (
                 <TableHead key={v.id} className="min-w-[100px] text-center p-2">
                   <div className="flex flex-col items-center gap-1">
                     <Button 
@@ -161,7 +169,7 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
                       className="h-6 w-6 p-0"
                       onClick={() => toggleCol(v.id)}
                     >
-                      {collapsedCols.has(v.id) ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                      <ChevronDown className="h-3 w-3" />
                     </Button>
                     <span className="text-[10px] truncate max-w-[80px]">{v.name}</span>
                   </div>
@@ -171,7 +179,7 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {regions.map(region => (
+            {visibleRegions.map(region => (
               <TableRow key={region}>
                 <TableCell className="font-medium sticky left-0 bg-background z-10 border-r p-2">
                   <div className="flex items-center gap-2">
@@ -181,22 +189,18 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
                       className="h-6 w-6 p-0"
                       onClick={() => toggleRow(region)}
                     >
-                      {collapsedRows.has(region) ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                      <ChevronDown className="h-3 w-3" />
                     </Button>
                     <span className="text-sm">{region}</span>
                   </div>
                 </TableCell>
-                {activeVotes.map(v => (
+                {visibleVotes.map(v => (
                   <TableCell key={v.id} className="text-center p-2 text-xs">
-                    {!collapsedRows.has(region) && !collapsedCols.has(v.id) ? (
-                      matrix[region][v.id] > 0 ? (
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-medium">
-                          {matrix[region][v.id]}
-                        </span>
-                      ) : <span className="text-muted-foreground/30">-</span>
-                    ) : (
-                      <span className="text-muted-foreground/20 italic">...</span>
-                    )}
+                    {matrix[region][v.id] > 0 ? (
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-medium">
+                        {matrix[region][v.id]}
+                      </span>
+                    ) : <span className="text-muted-foreground/30">-</span>}
                   </TableCell>
                 ))}
                 <TableCell className="text-center font-bold bg-muted/30">{rowTotals[region]}</TableCell>
@@ -204,7 +208,7 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
             ))}
             <TableRow className="bg-muted/50 hover:bg-muted/50">
               <TableCell className="font-bold sticky left-0 bg-muted/50 z-10 border-r p-3">Voter Totals</TableCell>
-              {activeVotes.map(v => (
+              {visibleVotes.map(v => (
                 <TableCell key={v.id} className="text-center font-bold p-2">
                   {colTotals[v.id]}
                 </TableCell>
