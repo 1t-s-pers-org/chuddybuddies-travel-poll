@@ -136,7 +136,8 @@ export function useVotes() {
   }, []);
 
   const verifyAdminPassword = useCallback((password: string): boolean => {
-    const stored = localStorage.getItem(ADMIN_PASSWORD_KEY) || import.meta.env.VITE_ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
+    // Priority: Secret (if defined) -> LocalStorage (if changed by user) -> Default
+    const stored = import.meta.env.VITE_ADMIN_PASSWORD || localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_ADMIN_PASSWORD;
     return password === stored;
   }, []);
 
