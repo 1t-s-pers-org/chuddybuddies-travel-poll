@@ -39,10 +39,15 @@ export function MapResults({ results }: MapResultsProps) {
     const countries: Record<string, DestinationResult & { lat: number, lng: number, continent: string }> = {};
     const continents: Record<string, DestinationResult & { lat: number, lng: number }> = {};
 
+    const unidentifiedLocations: Set<string> = new Set();
+
     results.forEach(res => {
-      const originalName = res.name.toLowerCase().trim();
+      // Split by comma/slash/semicolon and take the first part
+      const locations = res.name.split(/[,/;]/).map(l => l.trim()).filter(Boolean);
+      const primaryLocation = locations[0]?.toLowerCase() || '';
+      
       // Infer country from city/region if possible
-      const countryKey = LOCATION_TO_COUNTRY[originalName] || originalName;
+      const countryKey = LOCATION_TO_COUNTRY[primaryLocation] || primaryLocation;
       const geo = COUNTRY_DATA[countryKey];
       
       if (geo) {
@@ -89,6 +94,8 @@ export function MapResults({ results }: MapResultsProps) {
             }
           });
         }
+      } else if (res.totalPoints > 0) {
+        unidentifiedLocations.add(res.name);
       }
     });
 
@@ -106,7 +113,8 @@ export function MapResults({ results }: MapResultsProps) {
         ...c,
         color: getColor(i, totalCountries)
       })),
-      continents: Object.values(continents)
+      continents: Object.values(continents),
+      unidentified: Array.from(unidentifiedLocations).sort()
     };
   }, [results]);
 
@@ -140,11 +148,12 @@ export function MapResults({ results }: MapResultsProps) {
             <MapEvents />
             {currentMarkers.map((m, i) => {
               const color = (m as any).color || '#3b82f6';
+              const iconSize = 32;
               const icon = L.divIcon({
                 className: 'custom-div-icon',
-                html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; items-center; justify-center; color: white; font-size: 10px; font-weight: bold;">${m.totalPoints}</div>`,
-                iconSize: [24, 24],
-                iconAnchor: [12, 12],
+                html: `<div style="background-color: ${color}; width: ${iconSize}px; height: ${iconSize}px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">${m.totalPoints}</div>`,
+                iconSize: [iconSize, iconSize],
+                iconAnchor: [iconSize/2, iconSize/2],
               });
 
               return (
@@ -153,7 +162,7 @@ export function MapResults({ results }: MapResultsProps) {
                     <div className="p-1">
                       <h3 className="font-bold text-sm border-b pb-1 mb-1">{m.name}</h3>
                       <p className="text-xs">Points: <span className="font-bold">{m.totalPoints}</span></p>
-                      <p className="text-xs">Voters: <span className="text-muted-foreground">{m.voters.length}</span></p>
+                      <p className="text-xs mt-1">Voters: <span className="text-muted-foreground">{m.voters.map(v => v.substring(0, 3)).join(', ')}</span></p>
                       {!showContinents && (m as any).continent && (
                         <p className="text-[10px] text-muted-foreground mt-1">{(m as any).continent}</p>
                       )}
@@ -164,22 +173,32 @@ export function MapResults({ results }: MapResultsProps) {
             })}
           </MapContainer>
         </div>
-        <div className="p-4 bg-muted/30 border-t border-border flex justify-center gap-4 flex-wrap text-xs">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-[#22c55e]" />
-            <span>Top 3</span>
+        <div className="p-4 bg-muted/30 border-t border-border flex flex-col gap-3 text-xs">
+          <div className="flex justify-center gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-[#22c55e]" />
+              <span>Top 3</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-[#f97316]" />
+              <span>Middle Tier</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-[#ef4444]" />
+              <span>Bottom Tier</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-[#f97316]" />
-            <span>Middle Tier</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-[#ef4444]" />
-            <span>Bottom Tier</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-muted-foreground ml-auto">
-            <span>Zoom out to see continent totals</span>
-          </div>
+          
+          {mapData.unidentified.length > 0 && (
+            <div className="pt-2 border-t border-border/50">
+              <p className="text-muted-foreground font-medium mb-1 uppercase tracking-wider text-[10px]">Unidentified Locations:</p>
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-muted-foreground italic">
+                {mapData.unidentified.map(loc => (
+                  <span key={loc}>{loc}</span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
