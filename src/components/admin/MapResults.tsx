@@ -3,7 +3,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DestinationResult } from '@/types/poll';
-import { COUNTRY_DATA, CONTINENT_DATA } from '@/lib/geoData';
+import { COUNTRY_DATA, CONTINENT_DATA, LOCATION_TO_COUNTRY } from '@/lib/geoData';
 import { useState, useMemo } from 'react';
 import { Map as MapIcon, Globe } from 'lucide-react';
 
@@ -40,14 +40,30 @@ export function MapResults({ results }: MapResultsProps) {
     const continents: Record<string, DestinationResult & { lat: number, lng: number }> = {};
 
     results.forEach(res => {
-      const countryKey = res.name.toLowerCase().trim();
+      const originalName = res.name.toLowerCase().trim();
+      // Infer country from city/region if possible
+      const countryKey = LOCATION_TO_COUNTRY[originalName] || originalName;
       const geo = COUNTRY_DATA[countryKey];
       
       if (geo) {
         if (!countries[countryKey]) {
-          countries[countryKey] = { ...res, lat: geo.lat, lng: geo.lng, continent: geo.continent };
+          countries[countryKey] = { 
+            ...res, 
+            name: countryKey.charAt(0).toUpperCase() + countryKey.slice(1),
+            lat: geo.lat, 
+            lng: geo.lng, 
+            continent: geo.continent 
+          };
         } else {
           countries[countryKey].totalPoints += res.totalPoints;
+          countries[countryKey].firstVotes += res.firstVotes;
+          countries[countryKey].secondVotes += res.secondVotes;
+          countries[countryKey].thirdVotes += res.thirdVotes;
+          res.voters.forEach(v => {
+            if (!countries[countryKey].voters.includes(v)) {
+              countries[countryKey].voters.push(v);
+            }
+          });
         }
 
         const continent = geo.continent;
@@ -77,9 +93,9 @@ export function MapResults({ results }: MapResultsProps) {
     });
 
     const sortedCountries = Object.values(countries).sort((a, b) => b.totalPoints - a.totalPoints);
-    const maxPoints = sortedCountries[0]?.totalPoints || 1;
+    const totalCountries = sortedCountries.length;
 
-    const getColor = (points: number, index: number, total: number) => {
+    const getColor = (index: number, total: number) => {
       if (index < 3 && total > 0) return '#22c55e'; // Top 3: Green
       if (index < total / 2) return '#f97316'; // Middle: Orange
       return '#ef4444'; // Bottom: Red
@@ -88,7 +104,7 @@ export function MapResults({ results }: MapResultsProps) {
     return {
       countries: sortedCountries.map((c, i) => ({
         ...c,
-        color: getColor(c.totalPoints, i, sortedCountries.length)
+        color: getColor(i, totalCountries)
       })),
       continents: Object.values(continents)
     };
