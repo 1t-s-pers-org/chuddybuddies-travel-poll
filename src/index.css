@@ -117,4 +117,22 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  .leaflet-container {
+    @apply h-full w-full outline-none;
+    z-index: 1 !important;
+  }
+
+  .leaflet-popup {
+    z-index: 1001 !important;
+  }
+
+  .leaflet-pane {
+    z-index: 400 !important;
+  }
+
+  .leaflet-top,
+  .leaflet-bottom {
+    z-index: 1000 !important;
+  }
 }

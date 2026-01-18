@@ -168,8 +168,8 @@ export function MapResults({ results }: MapResultsProps) {
 
   return (
     <Card className={cn(
-      "shadow-lg border-0 overflow-hidden transition-all duration-300",
-      isFullScreen ? "fixed inset-0 z-[100] rounded-none h-screen w-screen" : ""
+      "shadow-lg border-0 transition-all duration-300 flex flex-col",
+      isFullScreen ? "fixed inset-0 z-[100] rounded-none h-screen w-screen overflow-hidden" : "overflow-hidden"
     )}>
       <CardHeader className="pb-3 flex flex-row items-center justify-between">
         <CardTitle className="text-lg flex items-center gap-2">
@@ -219,7 +219,7 @@ export function MapResults({ results }: MapResultsProps) {
             center={[20, 0]} 
             zoom={2} 
             scrollWheelZoom={true} 
-            className="h-full w-full"
+            className="h-full w-full relative z-[1]"
             key={`${isFullScreen ? 'fullscreen' : 'normal'}-${theme}`}
           >
             <TileLayer
