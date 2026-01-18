@@ -258,6 +258,7 @@ export const LOCATION_TO_COUNTRY: Record<string, string> = {
   "dublin": "ireland",
   "tuscany": "italy",
   "machu picchu": "peru",
+  "machu pichu": "peru",
   "taipei": "taiwan",
   "reykjavik": "iceland",
   "scotland": "united kingdom",

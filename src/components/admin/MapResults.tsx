@@ -36,6 +36,11 @@ const MAP_THEMES = {
     url: "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
   },
+  watercolor: {
+    name: "Watercolor",
+    url: "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg",
+    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'
+  },
   terrain: {
     name: "Terrain",
     url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
@@ -172,13 +177,13 @@ export function MapResults({ results }: MapResultsProps) {
           Destination Map
         </CardTitle>
         <div className="flex items-center gap-2">
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8" title="Change Map Theme">
                 <Layers className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="z-[110]">
               {(Object.keys(MAP_THEMES) as ThemeKey[]).map((key) => (
                 <DropdownMenuItem
                   key={key}
