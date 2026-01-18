@@ -12,6 +12,7 @@ interface CrossTabulationProps {
 }
 
 export function CrossTabulation({ results, votes }: CrossTabulationProps) {
+  const [activeRow, setActiveRow] = useState<string | null>(null);
   const [collapsedRows, setCollapsedRows] = useState<Set<string>>(new Set());
   const [collapsedCols, setCollapsedCols] = useState<Set<string>>(new Set());
 
@@ -29,40 +30,6 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
   const visibleRegions = useMemo(() => {
     return regions.filter(r => !collapsedRows.has(r));
   }, [regions, collapsedRows]);
-
-  const visibleVotes = useMemo(() => {
-    return activeVotes.filter(v => !collapsedCols.has(v.id));
-  }, [activeVotes, collapsedCols]);
-
-  const toggleAllRows = (collapse: boolean) => {
-    if (collapse) {
-      setCollapsedRows(new Set(regions));
-    } else {
-      setCollapsedRows(new Set());
-    }
-  };
-
-  const toggleAllCols = (collapse: boolean) => {
-    if (collapse) {
-      setCollapsedCols(new Set(activeVotes.map(v => v.id)));
-    } else {
-      setCollapsedCols(new Set());
-    }
-  };
-
-  const toggleRow = (region: string) => {
-    const newSet = new Set(collapsedRows);
-    if (newSet.has(region)) newSet.delete(region);
-    else newSet.add(region);
-    setCollapsedRows(newSet);
-  };
-
-  const toggleCol = (voterId: string) => {
-    const newSet = new Set(collapsedCols);
-    if (newSet.has(voterId)) newSet.delete(voterId);
-    else newSet.add(voterId);
-    setCollapsedCols(newSet);
-  };
 
   const matrix = useMemo(() => {
     const data: Record<string, Record<string, number>> = {};
@@ -88,6 +55,45 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
 
     return data;
   }, [regions, activeVotes]);
+
+  const visibleVotes = useMemo(() => {
+    if (!activeRow) {
+      return activeVotes.filter(v => !collapsedCols.has(v.id));
+    }
+    // If a row is active, only show voters who voted for this region
+    return activeVotes.filter(v => matrix[activeRow][v.id] > 0);
+  }, [activeVotes, collapsedCols, activeRow, matrix]);
+
+  const toggleAllRows = (collapse: boolean) => {
+    if (collapse) {
+      setCollapsedRows(new Set(regions));
+    } else {
+      setCollapsedRows(new Set());
+    }
+  };
+
+  const toggleAllCols = (collapse: boolean) => {
+    if (collapse) {
+      setCollapsedCols(new Set(activeVotes.map(v => v.id)));
+    } else {
+      setCollapsedCols(new Set());
+    }
+  };
+
+  const toggleRow = (region: string) => {
+    if (activeRow === region) {
+      setActiveRow(null);
+    } else {
+      setActiveRow(region);
+    }
+  };
+
+  const toggleCol = (voterId: string) => {
+    const newSet = new Set(collapsedCols);
+    if (newSet.has(voterId)) newSet.delete(voterId);
+    else newSet.add(voterId);
+    setCollapsedCols(newSet);
+  };
 
   const rowTotals = useMemo(() => {
     const totals: Record<string, number> = {};

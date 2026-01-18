@@ -257,6 +257,10 @@ export const LOCATION_TO_COUNTRY: Record<string, string> = {
   "istanbul": "turkey",
   "dublin": "ireland",
   "tuscany": "italy",
+  "machu picchu": "peru",
+  "taipei": "taiwan",
+  "reykjavik": "iceland",
+  "scotland": "united kingdom",
 };
 
 export const CONTINENT_DATA: Record<string, { lat: number, lng: number }> = {
