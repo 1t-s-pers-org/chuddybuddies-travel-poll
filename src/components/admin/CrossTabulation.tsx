@@ -189,7 +189,7 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
                     >
                       <ChevronDown className={cn("h-3 w-3 transition-transform", activeCol === v.id && "rotate-180")} />
                     </Button>
-                    <span className="text-[10px] truncate max-w-[80px]">{v.name}</span>
+                    <span className="text-[10px] truncate max-w-[80px] text-center">{v.name}</span>
                   </div>
                 </TableHead>
               ))}
@@ -199,10 +199,10 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
           <TableBody>
             {visibleRegions.map((region, idx) => (
               <TableRow key={region} className="hover:bg-muted/30">
-                <TableCell className="sticky left-0 z-20 bg-background border-r text-center text-[10px] font-medium text-muted-foreground p-2">
+                <TableCell className="sticky left-0 z-20 bg-background border-r text-center text-[10px] font-medium text-muted-foreground p-2 border-b">
                   {idx + 1}
                 </TableCell>
-                <TableCell className="font-medium sticky left-[50px] z-20 bg-background border-r p-2">
+                <TableCell className="font-medium sticky left-[50px] z-20 bg-background border-r p-2 border-b">
                   <div className="flex items-center gap-2">
                     <Button 
                       variant={activeRow === region ? "secondary" : "ghost"}
@@ -216,7 +216,7 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
                   </div>
                 </TableCell>
                 {visibleVotes.map(v => (
-                  <TableCell key={v.id} className="text-center p-2 text-xs border-r last:border-r-0">
+                  <TableCell key={v.id} className="text-center p-2 text-xs border-r border-b last:border-r-0">
                     {matrix[region][v.id] > 0 ? (
                       <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-medium">
                         {matrix[region][v.id]}
@@ -224,7 +224,7 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
                     ) : <span className="text-muted-foreground/30">-</span>}
                   </TableCell>
                 ))}
-                <TableCell className="text-center font-bold bg-muted/30 sticky right-0 z-10">{rowTotals[region]}</TableCell>
+                <TableCell className="text-center font-bold bg-muted/30 sticky right-0 z-10 border-b">{rowTotals[region]}</TableCell>
               </TableRow>
             ))}
             <TableRow className="bg-muted/50 hover:bg-muted/50 sticky bottom-0 z-20 shadow-[0_-2px_4px_rgba(0,0,0,0.05)]">
