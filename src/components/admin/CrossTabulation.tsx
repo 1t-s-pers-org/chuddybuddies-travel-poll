@@ -1,10 +1,11 @@
+import { DestinationResult, Vote } from '@/types/poll';
+import { ChevronDown, Table as TableIcon } from 'lucide-react';
+import { LOCATION_TO_COUNTRY } from '@/lib/geoData';
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { DestinationResult, Vote } from '@/types/poll';
-import { ChevronDown, ChevronRight, Table as TableIcon } from 'lucide-react';
-import { LOCATION_TO_COUNTRY } from '@/lib/geoData';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 
 interface CrossTabulationProps {
   results: DestinationResult[];
