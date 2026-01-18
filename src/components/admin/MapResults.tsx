@@ -5,21 +5,45 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DestinationResult } from '@/types/poll';
 import { COUNTRY_DATA, CONTINENT_DATA, LOCATION_TO_COUNTRY } from '@/lib/geoData';
 import { useState, useMemo, useEffect } from 'react';
-import { Map as MapIcon, Globe, Maximize2, Minimize2 } from 'lucide-react';
+import { Map as MapIcon, Globe, Maximize2, Minimize2, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-// Fix for default marker icons in Leaflet + React
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+const MAP_THEMES = {
+  standard: {
+    name: "Standard",
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  },
+  light: {
+    name: "Light Mode",
+    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  },
+  dark: {
+    name: "Dark Mode",
+    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  },
+  toner: {
+    name: "Toner (B&W)",
+    url: "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  },
+  terrain: {
+    name: "Terrain",
+    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+  }
+};
 
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
-});
+type ThemeKey = keyof typeof MAP_THEMES;
 
 interface MapResultsProps {
   results: DestinationResult[];
@@ -28,6 +52,7 @@ interface MapResultsProps {
 export function MapResults({ results }: MapResultsProps) {
   const [zoom, setZoom] = useState(2);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [theme, setTheme] = useState<ThemeKey>('standard');
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -147,6 +172,24 @@ export function MapResults({ results }: MapResultsProps) {
           Destination Map
         </CardTitle>
         <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8" title="Change Map Theme">
+                <Layers className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {(Object.keys(MAP_THEMES) as ThemeKey[]).map((key) => (
+                <DropdownMenuItem
+                  key={key}
+                  onClick={() => setTheme(key)}
+                  className={cn(theme === key ? "bg-accent" : "")}
+                >
+                  {MAP_THEMES[key].name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button
             variant="ghost"
             size="icon"
@@ -172,11 +215,11 @@ export function MapResults({ results }: MapResultsProps) {
             zoom={2} 
             scrollWheelZoom={true} 
             className="h-full w-full"
-            key={isFullScreen ? 'fullscreen' : 'normal'}
+            key={`${isFullScreen ? 'fullscreen' : 'normal'}-${theme}`}
           >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="http://stamen.com">Stamen Design</a>'
-              url="https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
+              attribution={MAP_THEMES[theme].attribution}
+              url={MAP_THEMES[theme].url}
             />
             <MapEvents />
             {currentMarkers.map((m, i) => {
