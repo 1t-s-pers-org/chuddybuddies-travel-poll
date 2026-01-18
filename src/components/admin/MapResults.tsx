@@ -4,8 +4,10 @@ import 'leaflet/dist/leaflet.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DestinationResult } from '@/types/poll';
 import { COUNTRY_DATA, CONTINENT_DATA, LOCATION_TO_COUNTRY } from '@/lib/geoData';
-import { useState, useMemo } from 'react';
-import { Map as MapIcon, Globe } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Map as MapIcon, Globe, Maximize2, Minimize2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 // Fix for default marker icons in Leaflet + React
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -25,6 +27,19 @@ interface MapResultsProps {
 
 export function MapResults({ results }: MapResultsProps) {
   const [zoom, setZoom] = useState(2);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsFullScreen(false);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
+  const toggleFullScreen = () => {
+    setIsFullScreen(!isFullScreen);
+  };
 
   const MapEvents = () => {
     useMapEvents({
@@ -122,24 +137,42 @@ export function MapResults({ results }: MapResultsProps) {
   const currentMarkers = showContinents ? mapData.continents : mapData.countries;
 
   return (
-    <Card className="shadow-lg border-0 overflow-hidden">
+    <Card className={cn(
+      "shadow-lg border-0 overflow-hidden transition-all duration-300",
+      isFullScreen ? "fixed inset-0 z-[100] rounded-none h-screen w-screen" : ""
+    )}>
       <CardHeader className="pb-3 flex flex-row items-center justify-between">
         <CardTitle className="text-lg flex items-center gap-2">
           <MapIcon className="h-5 w-5" />
           Destination Map
         </CardTitle>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Globe className="h-3 w-3" />
-          {showContinents ? "Continent View" : "Country View"}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleFullScreen}
+            className="h-8 w-8"
+            title={isFullScreen ? "Exit Full Screen" : "Full Screen"}
+          >
+            {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          </Button>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground border-l pl-2">
+            <Globe className="h-3 w-3" />
+            {showContinents ? "Continent View" : "Country View"}
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="h-[500px] w-full relative z-0">
+      <CardContent className="p-0 flex flex-col h-full">
+        <div className={cn(
+          "relative z-0 w-full transition-all",
+          isFullScreen ? "flex-1" : "h-[500px]"
+        )}>
           <MapContainer 
             center={[20, 0]} 
             zoom={2} 
             scrollWheelZoom={true} 
             className="h-full w-full"
+            key={isFullScreen ? 'fullscreen' : 'normal'}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="http://stamen.com">Stamen Design</a>'
