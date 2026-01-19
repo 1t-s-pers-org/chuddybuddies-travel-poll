@@ -1,5 +1,63 @@
 import { z } from 'zod';
 
+// Helper to sanitize and validate text input (no HTML/script tags)
+const sanitizedString = (maxLength: number) =>
+  z.string()
+    .max(maxLength, `Maximum ${maxLength} characters allowed`)
+    .refine(
+      (val) => !/<script|<\/script|javascript:|on\w+\s*=/i.test(val),
+      'Invalid characters detected'
+    )
+    .transform((val) => val.trim());
+
+// Poll form submission schema
+export const PollSubmissionSchema = z.object({
+  name: z.string()
+    .min(1, 'Name is required')
+    .max(100, 'Name must be 100 characters or less')
+    .refine(
+      (val) => !/<script|<\/script|javascript:|on\w+\s*=/i.test(val),
+      'Invalid characters in name'
+    )
+    .transform((val) => val.trim()),
+  firstChoice: z.string()
+    .min(1, 'First choice is required')
+    .max(200, 'Destination must be 200 characters or less')
+    .refine(
+      (val) => !/<script|<\/script|javascript:|on\w+\s*=/i.test(val),
+      'Invalid characters in first choice'
+    )
+    .transform((val) => val.trim()),
+  secondChoice: sanitizedString(200).optional().default(''),
+  thirdChoice: sanitizedString(200).optional().default(''),
+});
+
+export type PollSubmission = z.infer<typeof PollSubmissionSchema>;
+
+// Validation result type
+export interface ValidationResult<T> {
+  success: boolean;
+  data?: T;
+  errors?: string[];
+}
+
+// Validate poll submission
+export function validatePollSubmission(data: {
+  name: string;
+  firstChoice: string;
+  secondChoice: string;
+  thirdChoice: string;
+}): ValidationResult<PollSubmission> {
+  const result = PollSubmissionSchema.safeParse(data);
+  
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  
+  const errors = result.error.errors.map(err => err.message);
+  return { success: false, errors };
+}
+
 // Vote schema for import validation
 export const VoteSchema = z.object({
   id: z.string().min(1).max(100),

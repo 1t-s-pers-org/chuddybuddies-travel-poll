@@ -5,10 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Vote } from '@/types/poll';
 import { toast } from '@/hooks/use-toast';
+import { validatePollSubmission } from '@/lib/validation';
 
 interface PollFormProps {
   onSubmit: (vote: Omit<Vote, 'id' | 'createdAt' | 'updatedAt'>) => void;
 }
+
+// Maximum character limits for inputs
+const MAX_NAME_LENGTH = 100;
+const MAX_CHOICE_LENGTH = 200;
 
 export function PollForm({ onSubmit }: PollFormProps) {
   const [name, setName] = useState('');
@@ -19,21 +24,27 @@ export function PollForm({ onSubmit }: PollFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim()) {
-      toast({ title: 'Please enter your name', variant: 'destructive' });
+    // Validate all inputs using zod schema
+    const validationResult = validatePollSubmission({
+      name,
+      firstChoice,
+      secondChoice,
+      thirdChoice,
+    });
+
+    if (!validationResult.success) {
+      const errorMessage = validationResult.errors?.[0] || 'Invalid input';
+      toast({ title: errorMessage, variant: 'destructive' });
       return;
     }
 
-    if (!firstChoice.trim()) {
-      toast({ title: 'Please enter at least your first choice', variant: 'destructive' });
-      return;
-    }
-
+    const validatedData = validationResult.data!;
+    
     onSubmit({
-      name: name.trim(),
-      firstChoice: firstChoice.trim(),
-      secondChoice: secondChoice.trim(),
-      thirdChoice: thirdChoice.trim(),
+      name: validatedData.name,
+      firstChoice: validatedData.firstChoice,
+      secondChoice: validatedData.secondChoice || '',
+      thirdChoice: validatedData.thirdChoice || '',
     });
 
     setName('');
@@ -60,6 +71,7 @@ export function PollForm({ onSubmit }: PollFormProps) {
               placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              maxLength={MAX_NAME_LENGTH}
             />
           </div>
 
@@ -75,6 +87,7 @@ export function PollForm({ onSubmit }: PollFormProps) {
               placeholder="Your top destination"
               value={firstChoice}
               onChange={(e) => setFirstChoice(e.target.value)}
+              maxLength={MAX_CHOICE_LENGTH}
             />
           </div>
 
@@ -90,6 +103,7 @@ export function PollForm({ onSubmit }: PollFormProps) {
               placeholder="Your second destination"
               value={secondChoice}
               onChange={(e) => setSecondChoice(e.target.value)}
+              maxLength={MAX_CHOICE_LENGTH}
             />
           </div>
 
@@ -105,6 +119,7 @@ export function PollForm({ onSubmit }: PollFormProps) {
               placeholder="Your third destination"
               value={thirdChoice}
               onChange={(e) => setThirdChoice(e.target.value)}
+              maxLength={MAX_CHOICE_LENGTH}
             />
           </div>
 
