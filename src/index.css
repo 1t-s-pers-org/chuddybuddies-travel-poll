@@ -48,6 +48,18 @@ All colors MUST be HSL.
     --gold: 45 93% 47%;
     --silver: 210 11% 71%;
     --bronze: 30 41% 57%;
+    
+    /* Leaderboard Tiers */
+    --rank-1: 45 93% 47%;
+    --rank-1-bg: 45 100% 96%;
+    --rank-2: 210 11% 71%;
+    --rank-2-bg: 210 20% 96%;
+    --rank-3: 30 41% 57%;
+    --rank-3-bg: 30 100% 96%;
+    --rank-4: 199 89% 48%;
+    --rank-4-bg: 199 100% 96%;
+    --rank-5: 199 89% 48%;
+    --rank-5-bg: 199 100% 96%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
