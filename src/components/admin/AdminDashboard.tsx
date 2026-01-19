@@ -28,7 +28,7 @@ interface AdminDashboardProps {
   onDeleteVote: (id: string) => void;
   onToggleExcludeVote: (id: string) => void;
   onArchiveAndReset: () => void;
-  onChangePassword: (password: string) => void;
+  onChangePassword: (password: string) => Promise<void> | void;
   onExport: () => void;
   onImport: (file: File) => void;
   onLogout: () => void;
@@ -59,22 +59,31 @@ export function AdminDashboard({
     fileInputRef.current?.click();
   };
 
-  const handlePasswordChange = (e: React.FormEvent) => {
+  const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword.length < 4) {
+    if (newPassword.length < 8) {
       toast({
         title: "Error",
-        description: "Password must be at least 4 characters long",
+        description: "Password must be at least 8 characters long",
         variant: "destructive"
       });
       return;
     }
-    onChangePassword(newPassword);
-    setNewPassword('');
-    toast({
-      title: "Success",
-      description: "Admin password has been updated",
-    });
+
+    try {
+      await onChangePassword(newPassword);
+      setNewPassword('');
+      toast({
+        title: "Success",
+        description: "Password has been updated",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err?.message ?? "Failed to update password",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +139,7 @@ export function AdminDashboard({
         <form onSubmit={handlePasswordChange} className="pt-4 border-t border-border space-y-3">
           <Label className="text-sm flex items-center gap-2">
             <Lock className="h-4 w-4" />
-            Change Admin Password
+            Change Password
           </Label>
           <div className="flex gap-2">
             <Input
@@ -144,6 +153,9 @@ export function AdminDashboard({
               Update
             </Button>
           </div>
+          <p className="text-xs text-muted-foreground">
+            This updates the currently logged-in admin account.
+          </p>
         </form>
       </div>
 
