@@ -219,6 +219,9 @@ export function MapResults({ results }: MapResultsProps) {
             center={[20, 0]} 
             zoom={2} 
             scrollWheelZoom={true} 
+            zoomSnap={0.1}
+            zoomDelta={0.1}
+            wheelPxPerZoomLevel={120}
             className="h-full w-full relative z-[1]"
             key={`${isFullScreen ? 'fullscreen' : 'normal'}-${theme}`}
           >

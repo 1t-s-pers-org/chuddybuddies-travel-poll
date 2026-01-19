@@ -62,6 +62,25 @@ export function Leaderboard({ results }: LeaderboardProps) {
     }
   };
 
+  const getCountryEmoji = (countryName: string) => {
+    const name = countryName.toLowerCase();
+    if (name.includes('bali') || name.includes('indonesia')) return "🏝️";
+    if (name.includes('tokyo') || name.includes('japan')) return "🗼";
+    if (name.includes('santorini') || name.includes('greece')) return "🏛️";
+    if (name.includes('paris') || name.includes('france')) return "🇫🇷";
+    if (name.includes('new york') || name.includes('usa') || name.includes('united states')) return "🗽";
+    if (name.includes('london') || name.includes('uk') || name.includes('united kingdom')) return "🎡";
+    if (name.includes('italy') || name.includes('tuscany')) return "🍷";
+    if (name.includes('peru') || name.includes('machu')) return "⛰️";
+    if (name.includes('taiwan') || name.includes('taipei')) return "🧋";
+    if (name.includes('iceland') || name.includes('reykjavik')) return "🌋";
+    if (name.includes('ireland') || name.includes('dublin')) return "🍀";
+    if (name.includes('china')) return "🏮";
+    if (name.includes('singapore')) return "🦁";
+    if (name.includes('turkey')) return "🕌";
+    return "📍";
+  };
+
   return (
     <Card className="shadow-none border-0 bg-transparent">
       <CardHeader className="px-0 pb-6">
@@ -101,7 +120,7 @@ export function Leaderboard({ results }: LeaderboardProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">
-                      {index === 0 ? "🏝️" : index === 1 ? "🗼" : index === 2 ? "🏛️" : index === 3 ? "🗼" : "🗽"}
+                      {getCountryEmoji(result.name)}
                     </span>
                     <span className="font-bold text-[#1E293B]">{result.name}</span>
                   </div>

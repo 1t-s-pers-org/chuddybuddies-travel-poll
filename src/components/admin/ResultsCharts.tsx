@@ -42,23 +42,52 @@ export function ResultsCharts({ results }: ResultsChartsProps) {
 
   return (
     <div className="space-y-4">
-      <Card className="shadow-lg border-0">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Total Points by Destination</CardTitle>
+      <Card className="shadow-none border border-[#E2E8F0] rounded-xl overflow-hidden bg-white/50 backdrop-blur-sm">
+        <CardHeader className="pb-2 border-b border-[#E2E8F0]/50">
+          <CardTitle className="text-base font-bold text-[#1E293B]">Total Points by Destination</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4">
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={pointsData} layout="vertical" margin={{ left: 0, right: 20 }}>
-                <XAxis type="number" />
-                <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
+                <XAxis type="number" hide />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  width={100}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fontWeight: 600, fill: '#64748B' }}
+                />
                 <Tooltip
+                  cursor={{ fill: 'transparent' }}
+                  contentStyle={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderRadius: '8px',
+                    border: '1px solid #E2E8F0',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  }}
                   formatter={(value, name, props) => [value, props.payload.fullName]}
                   labelFormatter={() => ''}
                 />
-                <Bar dataKey="points" radius={[0, 4, 4, 0]}>
+                <Bar dataKey="points" radius={[0, 4, 4, 0]} barSize={20}>
                   {pointsData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={
+                        index === 0 ? '#FDE68A' :
+                        index === 1 ? '#E2E8F0' :
+                        index === 2 ? '#FFEDD5' :
+                        '#E0F2FE'
+                      }
+                      stroke={
+                        index === 0 ? '#EAB308' :
+                        index === 1 ? '#94A3B8' :
+                        index === 2 ? '#D97706' :
+                        '#0EA5E9'
+                      }
+                      strokeWidth={1}
+                    />
                   ))}
                 </Bar>
               </BarChart>
@@ -67,23 +96,52 @@ export function ResultsCharts({ results }: ResultsChartsProps) {
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg border-0">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Number of Voters per Destination</CardTitle>
+      <Card className="shadow-none border border-[#E2E8F0] rounded-xl overflow-hidden bg-white/50 backdrop-blur-sm">
+        <CardHeader className="pb-2 border-b border-[#E2E8F0]/50">
+          <CardTitle className="text-base font-bold text-[#1E293B]">Number of Voters per Destination</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4">
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={votersData} layout="vertical" margin={{ left: 0, right: 20 }}>
-                <XAxis type="number" />
-                <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
+                <XAxis type="number" hide />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  width={100}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fontWeight: 600, fill: '#64748B' }}
+                />
                 <Tooltip
+                  cursor={{ fill: 'transparent' }}
+                  contentStyle={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderRadius: '8px',
+                    border: '1px solid #E2E8F0',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  }}
                   formatter={(value, name, props) => [value, props.payload.fullName]}
                   labelFormatter={() => ''}
                 />
-                <Bar dataKey="voters" radius={[0, 4, 4, 0]}>
+                <Bar dataKey="voters" radius={[0, 4, 4, 0]} barSize={20}>
                   {votersData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={
+                        index === 0 ? '#FDE68A' :
+                        index === 1 ? '#E2E8F0' :
+                        index === 2 ? '#FFEDD5' :
+                        '#E0F2FE'
+                      }
+                      stroke={
+                        index === 0 ? '#EAB308' :
+                        index === 1 ? '#94A3B8' :
+                        index === 2 ? '#D97706' :
+                        '#0EA5E9'
+                      }
+                      strokeWidth={1}
+                    />
                   ))}
                 </Bar>
               </BarChart>
