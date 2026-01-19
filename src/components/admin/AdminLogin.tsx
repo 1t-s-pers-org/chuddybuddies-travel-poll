@@ -24,7 +24,7 @@ export function AdminLogin({ onLoggedIn }: AdminLoginProps) {
     setLoading(false);
 
     if (error) {
-      console.error('Login error:', error.code, error.message);
+      logger.error('Login error:', { code: error.code, message: error.message });
       toast({
         title: 'Login failed',
         description: 'Invalid email or password. Please try again.',
@@ -53,7 +53,7 @@ export function AdminLogin({ onLoggedIn }: AdminLoginProps) {
 
     // Always show success to prevent email enumeration
     if (error) {
-      console.error('Password reset error:', error.code, error.message);
+      logger.error('Password reset error:', { code: error.code, message: error.message });
     }
     toast({
       title: 'Password reset email sent',
