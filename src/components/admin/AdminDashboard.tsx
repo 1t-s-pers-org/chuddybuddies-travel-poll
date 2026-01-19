@@ -127,17 +127,6 @@ export function AdminDashboard({
           />
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-border">
-          <Label htmlFor="hide-results" className="text-sm">
-            Hide Results from Public
-          </Label>
-          <Switch
-            id="hide-results"
-            checked={hideResults}
-            onCheckedChange={onHideResultsChange}
-          />
-        </div>
-
         <form onSubmit={handlePasswordChange} className="pt-4 border-t border-border space-y-3">
           <Label className="text-sm flex items-center gap-2">
             <Lock className="h-4 w-4" />

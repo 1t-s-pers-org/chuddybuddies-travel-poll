@@ -170,16 +170,16 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
       </CardHeader>
       <CardContent className="p-0 max-h-[600px] overflow-auto">
         <Table className="relative border-separate border-spacing-0">
-          <TableHeader className="sticky top-0 z-30 bg-background shadow-sm">
+          <TableHeader className="sticky top-0 z-40 bg-background shadow-sm">
             <TableRow>
-              <TableHead className="w-[50px] sticky left-0 z-40 bg-background border-r border-b text-center font-bold">
+              <TableHead className="w-[50px] sticky left-0 top-0 z-50 bg-background border-r border-b text-center font-bold">
                 #
               </TableHead>
-              <TableHead className="min-w-[150px] sticky left-[50px] z-40 bg-background border-r border-b">
+              <TableHead className="min-w-[150px] sticky left-[50px] top-0 z-50 bg-background border-r border-b">
                 Region / Voter
               </TableHead>
               {visibleVotes.map(v => (
-                <TableHead key={v.id} className="min-w-[100px] text-center p-2 border-b">
+                <TableHead key={v.id} className="min-w-[100px] text-center p-2 border-b sticky top-0 z-30 bg-background">
                   <div className="flex flex-col items-center gap-1">
                     <Button 
                       variant={activeCol === v.id ? "secondary" : "ghost"}
@@ -193,7 +193,7 @@ export function CrossTabulation({ results, votes }: CrossTabulationProps) {
                   </div>
                 </TableHead>
               ))}
-              <TableHead className="min-w-[80px] text-center font-bold bg-muted/50 border-b sticky right-0 z-20">Total</TableHead>
+              <TableHead className="min-w-[80px] text-center font-bold bg-muted/50 border-b sticky top-0 right-0 z-40">Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

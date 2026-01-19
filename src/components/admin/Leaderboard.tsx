@@ -64,21 +64,21 @@ export function Leaderboard({ results }: LeaderboardProps) {
 
   const getCountryEmoji = (countryName: string) => {
     const name = countryName.toLowerCase();
-    if (name.includes('bali') || name.includes('indonesia')) return "🏝️";
-    if (name.includes('tokyo') || name.includes('japan')) return "🗼";
+    if (name.includes('bali') || name.includes('indonesia')) return "🥥";
+    if (name.includes('tokyo') || name.includes('japan')) return "⛩️";
     if (name.includes('santorini') || name.includes('greece')) return "🏛️";
-    if (name.includes('paris') || name.includes('france')) return "🇫🇷";
-    if (name.includes('new york') || name.includes('usa') || name.includes('united states')) return "🗽";
-    if (name.includes('london') || name.includes('uk') || name.includes('united kingdom')) return "🎡";
+    if (name.includes('paris') || name.includes('france')) return "🏰";
+    if (name.includes('new york') || name.includes('usa') || name.includes('united states')) return "🏙️";
+    if (name.includes('london') || name.includes('uk') || name.includes('united kingdom')) return "🏰";
     if (name.includes('italy') || name.includes('tuscany')) return "🍷";
-    if (name.includes('peru') || name.includes('machu')) return "⛰️";
-    if (name.includes('taiwan') || name.includes('taipei')) return "🧋";
-    if (name.includes('iceland') || name.includes('reykjavik')) return "🌋";
-    if (name.includes('ireland') || name.includes('dublin')) return "🍀";
-    if (name.includes('china')) return "🏮";
-    if (name.includes('singapore')) return "🦁";
+    if (name.includes('peru') || name.includes('machu')) return "🗿";
+    if (name.includes('taiwan') || name.includes('taipei')) return "🏮";
+    if (name.includes('iceland') || name.includes('reykjavik')) return "🧊";
+    if (name.includes('ireland') || name.includes('dublin')) return "🍺";
+    if (name.includes('china')) return "🐉";
+    if (name.includes('singapore')) return "🏙️";
     if (name.includes('turkey')) return "🕌";
-    return "📍";
+    return "🌍";
   };
 
   return (
