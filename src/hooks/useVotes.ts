@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Vote, WeightConfig, DestinationResult, DEFAULT_WEIGHT_CONFIGS, PollRound } from '@/types/poll';
 import { ImportDataSchema } from '@/lib/validation';
+import { logger } from '@/lib/logger';
 import type { Json } from '@/integrations/supabase/types';
 
 // Only non-sensitive UI preferences stored in localStorage
@@ -32,7 +33,7 @@ export function useVotes() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching votes:', error);
+        logger.error('Error fetching votes:', error);
         return;
       }
 
@@ -50,7 +51,7 @@ export function useVotes() {
 
       setVotes(transformedVotes);
     } catch (error) {
-      console.error('Error fetching votes:', error);
+      logger.error('Error fetching votes:', error);
     } finally {
       setLoading(false);
     }
@@ -75,7 +76,7 @@ export function useVotes() {
         }
       }
     } catch (error) {
-      console.error('Error fetching config:', error);
+      logger.error('Error fetching config:', error);
     }
   }, []);
 
@@ -102,7 +103,7 @@ export function useVotes() {
         setRounds(transformedRounds);
       }
     } catch (error) {
-      console.error('Error fetching rounds:', error);
+      logger.error('Error fetching rounds:', error);
     }
   }, []);
 
@@ -157,7 +158,7 @@ export function useVotes() {
         .single();
 
       if (error) {
-        console.error('Error adding vote:', error);
+        logger.error('Error adding vote:', error);
         throw error;
       }
 
@@ -179,7 +180,7 @@ export function useVotes() {
 
       return newVote;
     } catch (error) {
-      console.error('Error adding vote:', error);
+      logger.error('Error adding vote:', error);
       throw error;
     }
   }, [isAuthenticated]);
@@ -193,13 +194,13 @@ export function useVotes() {
         .eq('id', parseInt(id, 10));
 
       if (error) {
-        console.error('Error deleting vote:', error);
+        logger.error('Error deleting vote:', error);
         throw error;
       }
 
       setVotes(prev => prev.filter(v => v.id !== id));
     } catch (error) {
-      console.error('Error deleting vote:', error);
+      logger.error('Error deleting vote:', error);
       throw error;
     }
   }, []);
@@ -216,7 +217,7 @@ export function useVotes() {
         .eq('id', parseInt(id, 10));
 
       if (error) {
-        console.error('Error toggling vote:', error);
+        logger.error('Error toggling vote:', error);
         throw error;
       }
 
@@ -226,7 +227,7 @@ export function useVotes() {
           : v
       ));
     } catch (error) {
-      console.error('Error toggling vote:', error);
+      logger.error('Error toggling vote:', error);
       throw error;
     }
   }, [votes]);
@@ -293,7 +294,7 @@ export function useVotes() {
         .single();
 
       if (roundError) {
-        console.error('Error saving round:', roundError);
+        logger.error('Error saving round:', roundError);
         throw roundError;
       }
 
@@ -313,14 +314,14 @@ export function useVotes() {
         .gte('id', 0);
 
       if (deleteError) {
-        console.error('Error deleting votes:', deleteError);
+        logger.error('Error deleting votes:', deleteError);
         throw deleteError;
       }
 
       setRounds(prev => [...prev, newRound]);
       setVotes([]);
     } catch (error) {
-      console.error('Error archiving poll:', error);
+      logger.error('Error archiving poll:', error);
       throw error;
     }
   }, [votes, rounds, calculateResults, weightConfig]);
@@ -347,7 +348,7 @@ export function useVotes() {
           .eq('key', 'weight_config');
 
         if (error) {
-          console.error('Error updating weight config:', error);
+          logger.error('Error updating weight config:', error);
         }
       } else {
         const { error } = await supabase
@@ -355,11 +356,11 @@ export function useVotes() {
           .insert({ key: 'weight_config', value: configJson });
 
         if (error) {
-          console.error('Error inserting weight config:', error);
+          logger.error('Error inserting weight config:', error);
         }
       }
     } catch (error) {
-      console.error('Error saving weight config:', error);
+      logger.error('Error saving weight config:', error);
     }
   }, []);
 
@@ -398,7 +399,7 @@ export function useVotes() {
             const errorMessages = parseResult.error.errors
               .map(err => `${err.path.join('.')}: ${err.message}`)
               .join(', ');
-            console.error('Import validation failed:', errorMessages);
+            logger.error('Import validation failed:', errorMessages);
             resolve({ success: false, error: `Invalid import data: ${errorMessages}` });
             return;
           }
@@ -429,7 +430,7 @@ export function useVotes() {
           
           resolve({ success: true });
         } catch (error) {
-          console.error('Failed to import data:', error);
+          logger.error('Failed to import data:', error);
           resolve({ success: false, error: 'Failed to parse JSON file' });
         }
       };
