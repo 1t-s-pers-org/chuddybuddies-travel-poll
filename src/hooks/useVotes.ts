@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Vote, WeightConfig, DestinationResult, DEFAULT_WEIGHT_CONFIGS, PollRound } from '@/types/poll';
+import { ImportDataSchema } from '@/lib/validation';
 
 const VOTES_KEY = 'travel-poll-votes';
 const WEIGHT_CONFIG_KEY = 'travel-poll-weight-config';
@@ -145,22 +146,45 @@ export function useVotes() {
     URL.revokeObjectURL(url);
   }, [votes, weightConfig]);
 
-  const importData = useCallback((file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target?.result as string);
-        if (data.votes) {
-          saveVotes(data.votes);
+  const importData = useCallback((file: File): Promise<{ success: boolean; error?: string }> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const rawData = JSON.parse(e.target?.result as string);
+          
+          // Validate imported data with zod schema
+          const parseResult = ImportDataSchema.safeParse(rawData);
+          
+          if (!parseResult.success) {
+            const errorMessages = parseResult.error.errors
+              .map(err => `${err.path.join('.')}: ${err.message}`)
+              .join(', ');
+            console.error('Import validation failed:', errorMessages);
+            resolve({ success: false, error: `Invalid import data: ${errorMessages}` });
+            return;
+          }
+          
+          const validatedData = parseResult.data;
+          
+          if (validatedData.votes && validatedData.votes.length > 0) {
+            saveVotes(validatedData.votes as Vote[]);
+          }
+          if (validatedData.weightConfig) {
+            setWeightConfig(validatedData.weightConfig as WeightConfig);
+          }
+          
+          resolve({ success: true });
+        } catch (error) {
+          console.error('Failed to import data:', error);
+          resolve({ success: false, error: 'Failed to parse JSON file' });
         }
-        if (data.weightConfig) {
-          setWeightConfig(data.weightConfig);
-        }
-      } catch (error) {
-        console.error('Failed to import data:', error);
-      }
-    };
-    reader.readAsText(file);
+      };
+      reader.onerror = () => {
+        resolve({ success: false, error: 'Failed to read file' });
+      };
+      reader.readAsText(file);
+    });
   }, [saveVotes, setWeightConfig]);
 
   const updateAdminPassword = useCallback(async (newPassword: string): Promise<void> => {
