@@ -23,9 +23,10 @@ export function AdminLogin({ onLoggedIn }: AdminLoginProps) {
     setLoading(false);
 
     if (error) {
+      console.error('Login error:', error.code, error.message);
       toast({
         title: 'Login failed',
-        description: error.message,
+        description: 'Invalid email or password. Please try again.',
         variant: 'destructive',
       });
       return;
@@ -49,14 +50,13 @@ export function AdminLogin({ onLoggedIn }: AdminLoginProps) {
       redirectTo: `${window.location.origin}/`,
     });
 
+    // Always show success to prevent email enumeration
     if (error) {
-      toast({ title: 'Reset failed', description: error.message, variant: 'destructive' });
-      return;
+      console.error('Password reset error:', error.code, error.message);
     }
-
     toast({
       title: 'Password reset email sent',
-      description: 'Check your inbox for a reset link.',
+      description: 'If that email exists, check your inbox for a reset link.',
     });
   };
 
