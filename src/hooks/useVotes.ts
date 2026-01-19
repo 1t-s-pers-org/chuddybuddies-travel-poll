@@ -1,13 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Vote, WeightConfig, DestinationResult, DEFAULT_WEIGHT_CONFIGS, PollRound } from '@/types/poll';
 
 const VOTES_KEY = 'travel-poll-votes';
-const ADMIN_PASSWORD_KEY = 'travel-poll-admin-password';
 const WEIGHT_CONFIG_KEY = 'travel-poll-weight-config';
 const HIDE_RESULTS_KEY = 'travel-poll-hide-results';
 const POLL_ROUNDS_KEY = 'travel-poll-rounds';
-
-const DEFAULT_ADMIN_PASSWORD = 'admin123';
 
 export function useVotes() {
   const [votes, setVotes] = useState<Vote[]>([]);
@@ -36,10 +34,6 @@ export function useVotes() {
       setHideResultsState(JSON.parse(storedHide));
     }
 
-    // Initialize admin password if not set
-    if (!localStorage.getItem(ADMIN_PASSWORD_KEY)) {
-      localStorage.setItem(ADMIN_PASSWORD_KEY, DEFAULT_ADMIN_PASSWORD);
-    }
   }, []);
 
   const saveVotes = useCallback((newVotes: Vote[]) => {
@@ -135,16 +129,6 @@ export function useVotes() {
     localStorage.setItem(HIDE_RESULTS_KEY, JSON.stringify(hide));
   }, []);
 
-  const verifyAdminPassword = useCallback((password: string): boolean => {
-    // Priority: Secret (if defined) -> LocalStorage (if changed by user) -> Default
-    const secretPassword = (import.meta as any).env.VITE_ADMIN_PASSWORD || (process.env as any).ADMIN_PASSWORD;
-    const stored = secretPassword || localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_ADMIN_PASSWORD;
-    return password === stored;
-  }, []);
-
-  const changeAdminPassword = useCallback((newPassword: string) => {
-    localStorage.setItem(ADMIN_PASSWORD_KEY, newPassword);
-  }, []);
 
   const exportData = useCallback(() => {
     const data = {
@@ -179,6 +163,11 @@ export function useVotes() {
     reader.readAsText(file);
   }, [saveVotes, setWeightConfig]);
 
+  const updateAdminPassword = useCallback(async (newPassword: string): Promise<void> => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+  }, []);
+
   return {
     votes,
     addVote,
@@ -190,10 +179,9 @@ export function useVotes() {
     setWeightConfig,
     hideResults,
     setHideResults,
-    verifyAdminPassword,
-    changeAdminPassword,
     calculateResults,
     exportData,
     importData,
+    updateAdminPassword,
   };
 }

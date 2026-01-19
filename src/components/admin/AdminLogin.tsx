@@ -4,23 +4,60 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AdminLoginProps {
-  onLogin: (password: string) => boolean;
+  onLoggedIn?: () => void;
 }
 
-export function AdminLogin({ onLogin }: AdminLoginProps) {
+export function AdminLogin({ onLoggedIn }: AdminLoginProps) {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (onLogin(password)) {
-      toast({ title: 'Welcome back, Admin!' });
-    } else {
-      toast({ title: 'Incorrect password', variant: 'destructive' });
-      setPassword('');
+
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+
+    if (error) {
+      toast({
+        title: 'Login failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return;
     }
+
+    toast({ title: 'Welcome back, Admin!' });
+    onLoggedIn?.();
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      toast({
+        title: 'Enter your email first',
+        description: 'Type your admin email above, then click “Forgot Password?”.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/`,
+    });
+
+    if (error) {
+      toast({ title: 'Reset failed', description: error.message, variant: 'destructive' });
+      return;
+    }
+
+    toast({
+      title: 'Password reset email sent',
+      description: 'Check your inbox for a reset link.',
+    });
   };
 
   return (
@@ -35,16 +72,25 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
+              type="email"
+              autoComplete="email"
+              placeholder="Admin email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Input
               type="password"
-              placeholder="Enter admin password"
+              autoComplete="current-password"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <Button type="submit" className="w-full">
-              Login
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Logging in…' : 'Login'}
             </Button>
             <button
               type="button"
+              onClick={handleForgotPassword}
               className="w-full text-sm text-muted-foreground hover:text-primary transition-colors"
             >
               Forgot Password?
