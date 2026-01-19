@@ -29,33 +29,75 @@ export type Database = {
         }
         Relationships: []
       }
+      poll_rounds: {
+        Row: {
+          created_at: string | null
+          id: string
+          results_snapshot: Json
+          round_number: number
+          votes_snapshot: Json
+          weight_config: Json
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          results_snapshot?: Json
+          round_number: number
+          votes_snapshot?: Json
+          weight_config: Json
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          results_snapshot?: Json
+          round_number?: number
+          votes_snapshot?: Json
+          weight_config?: Json
+        }
+        Relationships: []
+      }
       votes: {
         Row: {
           created_at: string | null
           email: string | null
+          first_choice: string | null
           id: number
+          is_excluded: boolean | null
           name: string | null
           r1: string | null
           r2: string | null
           r3: string | null
+          second_choice: string | null
+          third_choice: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           email?: string | null
+          first_choice?: string | null
           id?: number
+          is_excluded?: boolean | null
           name?: string | null
           r1?: string | null
           r2?: string | null
           r3?: string | null
+          second_choice?: string | null
+          third_choice?: string | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           email?: string | null
+          first_choice?: string | null
           id?: number
+          is_excluded?: boolean | null
           name?: string | null
           r1?: string | null
           r2?: string | null
           r3?: string | null
+          second_choice?: string | null
+          third_choice?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
